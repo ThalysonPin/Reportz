@@ -71,6 +71,8 @@ async function start(client: wppconnect.Whatsapp): Promise<void> {
     if(message.type === 'chat' && message.chatId !== 'status@broadcast' && message.body === "Relate" && message.chatId === '120363281185762281@g.us') {
       // Pega a os últimos chats que mandaram mensagem, limitado ao valor de count
       const maxChats = await client.listChats({count: 3});
+
+      console.log("Gerando dados para relatório...")
    
       //Coleta todos os IDs das conversas q a ultima mensagem foram no dia de hoje. Convertando o timestamp para dd-MM-yyyy comparando com o new Date de hoje
 
@@ -95,75 +97,10 @@ async function start(client: wppconnect.Whatsapp): Promise<void> {
 
 
     }
-
-    if (message.type === 'chat' && !message.isGroupMsg && message.chatId !== 'status@broadcast' ) {
-      console.log("CHATID AQ", message.chatId)
-
-      // const chatId = message.chatId; // Extrai o identificador do chat (chatId) da mensagem
-
-      // console.log('Ok!!! Mensagem recebida:', message.body); // Registra a mensagem recebida no console
-
-  
-      // // Se o modelo de IA selecionado for o GPT, inicializa uma nova sessão de chat com a IA
-      // if (AI_SELECTED === 'GPT') {
-      //   await initializeNewAIChatSession(chatId);
-      // }
-
-      // // Verifica se já existe um buffer de mensagens para o chatId atual
-      // if (!messageBufferPerChatId.has(chatId)) {
-      //   // Se não existir, cria um novo buffer de mensagens para o chatId
-      //   messageBufferPerChatId.set(chatId, []);
-      // }
-
-      // // Adiciona a mensagem recebida ao buffer de mensagens para o chatId atual
-      // messageBufferPerChatId.set(chatId, [...messageBufferPerChatId.get(chatId), message.body]);
-
-      // // Remove qualquer timeout existente para o chatId atual
-      // if (messageTimeouts.has(chatId)) {
-      //   clearTimeout(messageTimeouts.get(chatId));
-      // }
-
-      // console.log('Aguardando novas mensagens...'); // Registra uma mensagem no console indicando que está aguardando novas mensagens
-
-      // // Define um novo timeout de 10 segundos para o chatId atual
-      // messageTimeouts.set(
-      //   chatId,
-      //   setTimeout(() => {
-      //     (async () => {
-      //       console.log('Gerando resposta para: ', [...messageBufferPerChatId.get(chatId)].join(' \n ')); // Registra as mensagens do buffer no console
-
-      //       // Une todas as mensagens do buffer em uma única string separada por nova linha
-      //       const currentMessage = [...messageBufferPerChatId.get(chatId)].join(' \n ');
-
-      //       // Gera uma resposta usando o modelo de IA selecionado (GPT ou Google)
-            // const answer = AI_SELECTED === 'GPT'
-            //   ? await mainOpenAI({ currentMessage, chatId })
-            //   : await mainGoogle({ currentMessage, chatId });
-
-      //       // Divide a resposta em várias mensagens menores
-      //       const messages = splitMessages(answer);
-
-      //       console.log('Enviando mensagens...'); // Registra uma mensagem no console indicando que está enviando mensagens
-
-      //       // Envia as mensagens divididas de volta para o remetente original com um atraso
-            // await sendMessagesWithDelay({
-            //   client,
-            //   messages,
-            //   targetNumber: message.from, // Número do remetente original
-            //   timeMessage: message.timestamp, // Timestamp da mensagem original
-            //   time: message.t, // Timestamp adicional da mensagem original
-            // });
-
-      //       // Remove o buffer de mensagens e o timeout para o chatId atual
-      //       messageBufferPerChatId.delete(chatId);
-      //       messageTimeouts.delete(chatId);
-      //     })();
-      //   }, 10000)
-      // );
-    }
     else{
-      console.log(`Tipo: ${message.type} t: ${message.t} timestamp: ${message.timestamp} Time: ${new Date(message.timestamp * 1000 )}`)
+      console.log(message.content);
     }
+
   })();
 });
 
