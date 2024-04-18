@@ -68,11 +68,12 @@ async function start(client: wppconnect.Whatsapp): Promise<void> {
     (async () => {
 
     // Verifica se a mensagem é de um chat individual (não de grupo) e não é uma mensagem de status e contém "Relate"
-    if(message.type === 'chat' && message.chatId !== 'status@broadcast' && message.body === "Relate" && message.chatId === '120363281185762281@g.us') {
+    if(message.type === 'chat' && message.chatId !== 'status@broadcast' && message.content === "Relate" && message.chatId === '120363281185762281@g.us') {
       // Pega a os últimos chats que mandaram mensagem, limitado ao valor de count
       const maxChats = await client.listChats({count: 3});
 
-      console.log("Gerando dados para relatório...")
+      console.log("Gerando dados para relatório...", message.type, message.chatId, message.content)
+
    
       //Coleta todos os IDs das conversas q a ultima mensagem foram no dia de hoje. Convertando o timestamp para dd-MM-yyyy comparando com o new Date de hoje
 
@@ -98,7 +99,8 @@ async function start(client: wppconnect.Whatsapp): Promise<void> {
 
     }
     else{
-      console.log(message.content);
+      console.log("GKW: ", message.type, message.chatId, message.content)
+
     }
 
   })();
