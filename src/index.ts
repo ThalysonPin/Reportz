@@ -68,8 +68,11 @@ async function start(client: wppconnect.Whatsapp): Promise<void> {
     (async () => {
 
     // Verifica se a mensagem é de um chat individual (não de grupo) e não é uma mensagem de status e contém "Relate"
-    if(message.type === 'chat' && message.chatId !== 'status@broadcast' && message.body === "Relate" && message.chatId === '120363281185762281@g.us') {
+    if(message.type === 'chat' && message.chatId !== 'status@broadcast' && message.body === "Relate" && message.chatId === '120363268332306647@g.us') {
       // Pega a os últimos chats que mandaram mensagem, limitado ao valor de count
+
+      //Grupo 1120363281185762281@g.us
+      //Grupo 2 120363268332306647@g.us
       const maxChats = await client.listChats({count: 30});
 
       console.log("Gerando dados para relatório...", message.type, message.chatId, message.body)
