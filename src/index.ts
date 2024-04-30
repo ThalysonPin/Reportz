@@ -81,7 +81,7 @@ async function start(client: wppconnect.Whatsapp): Promise<void> {
       
       //Grupo 1120363281185762281@g.us
       //Grupo 2 120363268332306647@g.us
-      const maxChats = await client.listChats({count: 5});
+      const maxChats = await client.listChats({count: 20});
 
       console.log("Gerando dados para relatório...", message.type, message.chatId, message.body)
 
