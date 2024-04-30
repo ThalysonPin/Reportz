@@ -16,17 +16,19 @@ export function splitMessages(text: string): string[] {
 export async function sendMessagesWithDelay({
   messages,
   client,
+  targetNumber,
 }: {
   messages: string[];
   client: Whatsapp;
+  targetNumber: string;
 }): Promise<void> {
   for (const [, msg] of messages.entries()) {
     const dynamicDelay = msg.length * 10;
     await new Promise((resolve) => setTimeout(resolve, dynamicDelay));
     client
-      .sendText("120363281185762281@g.us", msg.trimStart())
+      .sendText(targetNumber, msg.trimStart())
       .then((result) => {
-        console.log('Mensagem enviada nesse krl:', result.body);
+        //console.log('Mensagem enviada nesse krl:', result.body);
 
       })
       .catch((erro) => {

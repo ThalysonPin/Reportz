@@ -1,10 +1,8 @@
 import wppconnect from '@wppconnect-team/wppconnect';
-
 import dotenv from 'dotenv';
 import { initializeNewAIChatSession, mainOpenAI } from './service/openai';
 import { splitMessages, sendMessagesWithDelay } from './util';
 import { mainGoogle } from './service/google';
-
 
 dotenv.config();
 type AIOption = 'GPT' | 'GEMINI';
@@ -49,7 +47,6 @@ wppconnect
     console.log(erro);
   });
 
-
 // FUNÇÃO PARA FORMATAR TIMESTAMP PARA DATA dd-MM-yyyy
 function timeToDate(timestamp : number) {
   var date = new Date(timestamp * 1000);
@@ -60,24 +57,32 @@ function timeToDate(timestamp : number) {
   return `${day}-${m}-${y}`
 }
 
-
 // FUNÇÃO ASSÍNCRONA PARA PEGAR AS MENSAGENS E OUTROS DADOS DO WPP
 async function start(client: wppconnect.Whatsapp): Promise<void> {
+
+  let grupoId = "";
   
   client.onMessage((message) => {
     (async () => {
 
-    // Verifica se a mensagem é de um chat individual (não de grupo) e não é uma mensagem de status e contém "Relate"
-    if(message.type === 'chat' && message.chatId !== 'status@broadcast' && message.body === "Relate" && message.chatId === '120363268332306647@g.us') {
-      // Pega a os últimos chats que mandaram mensagem, limitado ao valor de count
+    if(message.isGroupMsg && message.chatId !== 'status@broadcast' && message.body === "Configurar reportz" ) {
+      grupoId = message.chatId;
+      client.sendText(message.chatId, "Configurado com sucesso para o grupo: " + message.chatId)
 
+
+    } 
+
+    // Verifica se a mensagem é de um chat individual (não de grupo) e não é uma mensagem de status e contém "Relate"
+    if(message.type === 'chat' && message.chatId !== 'status@broadcast' && message.body === "Relate" && grupoId.length > 1) {
+      // Pega a os últimos chats que mandaram mensagem, limitado ao valor de count
+      
       //Grupo 1120363281185762281@g.us
       //Grupo 2 120363268332306647@g.us
-      const maxChats = await client.listChats({count: 30});
+      const maxChats = await client.listChats({count: 5});
 
       console.log("Gerando dados para relatório...", message.type, message.chatId, message.body)
 
-   
+  
       //Coleta todos os IDs das conversas q a ultima mensagem foram no dia de hoje. Convertando o timestamp para dd-MM-yyyy comparando com o new Date de hoje
 
       // Data de hoje
@@ -87,23 +92,23 @@ async function start(client: wppconnect.Whatsapp): Promise<void> {
       
       // Coleta os chat Ids que tiveram uma mensagem enviada pela última vez hoje e armazena em IdsToday
       maxChats.forEach(objeto => {
-        if(timeToDate(objeto.t) === today && !objeto.isGroup ) {                     
-          IdsToday.push(objeto.id.user)    
+        // console.log("OBJETO: ", objeto)
+        if(objeto.isGroup === false) {                     
+          IdsToday.push(objeto.id.user) 
+          
+          console.log("IdsToday: ", objeto.id.user)
         }else{
-
+          // console.log("GRUPO: ", objeto)
         }
       });
 
- 
       IdsToday.forEach(ids => {
         mensagensPo(ids)
       })
 
-
     }
     else{
-      console.log("GKW: ", message.type, message.chatId, message.content)
-
+      console.log("GKW: ", message.type, message.chatId, message.body, grupoId, grupoId.length > 1)
     }
 
   })();
@@ -112,31 +117,22 @@ async function start(client: wppconnect.Whatsapp): Promise<void> {
   async function mensagensPo(test: string){
     var currentMessage = ""
     const b = await client.getMessages(test)
-    // const c = b.map(items => items.timestamp)
     const hoje  = `${new Date().getDate()}/${new Date().getMonth() + 1}/${new Date().getFullYear()}`
 
-
-    const c = b.map(items => {
-      if(`${new Date(items.timestamp * 1000).getDate()}/${new Date(items.timestamp * 1000).getMonth() + 1}/${new Date(items.timestamp * 1000).getFullYear()}` === hoje){
-        return items
-      }
-    })
-
-    b.forEach(items => {
-      if(`${new Date(items.timestamp * 1000).getDate()}/${new Date(items.timestamp * 1000).getMonth() + 1}/${new Date(items.timestamp * 1000).getFullYear()}` === hoje){
-        
-      currentMessage += ` Nome: ${items.sender.pushname ? items.sender.pushname : 'Não definido'} / Remetente: ${items.sender.formattedName === "Eu" ? "Atendente" : 'Cliente'} / Mensagem: ${items.content} / Horário: ${new Date(items.timestamp * 1000).getHours()}-${new Date(items.timestamp * 1000).getMinutes()}-${new Date(items.timestamp * 1000).getSeconds()} / Timestamp: ${items.timestamp * 1000} / Tipo de mensagem: ${items.type} /  Data da mensagem: ${new Date(items.timestamp * 1000).getDate()}/${new Date(items.timestamp * 1000).getMonth() + 1}/${new Date(items.timestamp * 1000).getFullYear()}} 
-      \n`
-      
-      }
-    })
-
-    // Data: ${new Date(items.timestamp * 1000).getDate()}-${new Date(items.timestamp * 1000).getMonth() + 1}-${new Date(items.timestamp * 1000).getFullYear()} === ${today}
-
-    // new Date(items.timestamp).getHours()}-${new Date(items.timestamp).getMinutes()}-${new Date(items.timestamp).getSeconds()
+    // console.log("TEST: ", test)
 
 
-    
+
+    b.map(items => {
+
+        console.log("ITEMSSSSSSSSSSSSSSSSSSSSSSSS: ", items)
+        currentMessage += ` Nome: ${items.sender.pushname ? items.sender.pushname : items.sender.isMe ? "Atendente" : items.sender.verifiedName ? items.sender.verifiedName : "não definido" } / Remetente: ${items.sender.isMe ? "Atendente" : 'Cliente'} / Mensagem: ${items.type === "ptt" ? "Mensagem de audio" : items.type === "sticker" ? "Mensagem de figurinha" : items.type === "image" ? "Mensagem de imagem" : items.type === "video" ?  "Mensagem de video" : items.type === "document" ? "Mensagem de documento" : items.type === "chat" ? items.content : items.type === "vcard" ? "Mensagem de contato do whatsApp" :"Mensagem indefinida"} / Horário: ${new Date(items.timestamp * 1000).getHours()}-${new Date(items.timestamp * 1000).getMinutes()}-${new Date(items.timestamp * 1000).getSeconds()} / Timestamp: ${items.timestamp * 1000} / Tipo de mensagem: ${items.type} /  Data da mensagem: ${new Date(items.timestamp * 1000).getDate()}/${new Date(items.timestamp * 1000).getMonth() + 1}/${new Date(items.timestamp * 1000).getFullYear()}} 
+        \n`
+      })
+    // console.log("AAAAAAAAAAAAAAAAAA: ", currentMessage)
+
+    // console.log("Current Message: ", currentMessage)
+
     const chatId = ""
 
     const answer = AI_SELECTED === 'GPT'
@@ -147,6 +143,7 @@ async function start(client: wppconnect.Whatsapp): Promise<void> {
     await sendMessagesWithDelay({
       client,
       messages,
+      targetNumber: grupoId,
     });
   }
 }
