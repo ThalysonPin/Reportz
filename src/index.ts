@@ -76,23 +76,41 @@ async function start(client: wppconnect.Whatsapp): Promise<void> {
 
     } 
 
-    if(message.type === 'chat' && message.chatId !== 'status@broadcast' && message.body === "Relate" && grupoId.length > 1){
+    if(message.type === 'chat' && message.chatId !== 'status@broadcast' && message.body === "Instruções" && grupoId.length > 1){
+      client.sendText(message.chatId, `-Relate: Relatório das conversas que terminaram no dia de hoje. \n-Relate ontem: Relatórios das conversas que terminaram no dia de ontem. \n-Configurar reportz: Configurar o grupo para ser enviado os relatórios.`)
 
+    }
+
+
+    if(message.type === 'chat' && message.chatId !== 'status@broadcast' && message.body === "Relate ontem" && grupoId.length > 1){
+      const yesterday = `${new Date().getDate() - 1}-${new Date().getMonth() + 1}-${new Date().getFullYear()}`
+
+      const maxChats = await client.listChats({count: 30});
+
+      let IdsToday: string[] = [];
+
+      maxChats.forEach(objeto => {
+        if(objeto.isGroup === false && timeToDate(objeto.t) === yesterday) {                     
+          
+          IdsToday.push(objeto.id.user ) 
+           
+        }
+      });
+
+      console.log("Ontem: ", IdsToday)
+      IdsToday.forEach(ids => {
+        teste += mensagensPo(ids)
+
+      })
     }
     
 
     // Verifica se a mensagem é de um chat individual (não de grupo) e não é uma mensagem de status e contém "Relate"
     if(message.type === 'chat' && message.chatId !== 'status@broadcast' && message.body === "Relate" && grupoId.length > 1) {
-      // Pega a os últimos chats que mandaram mensagem, limitado ao valor de count
-      
-      //Grupo 1120363281185762281@g.us
-      //Grupo 2 120363268332306647@g.us
-      const maxChats = await client.listChats({count: 20});
+      const maxChats = await client.listChats({count: 30});
 
       console.log("Gerando dados para relatório...", message.type, message.chatId, message.body)
 
-  
-      //Coleta todos os IDs das conversas q a ultima mensagem foram no dia de hoje. Convertando o timestamp para dd-MM-yyyy comparando com o new Date de hoje
 
       // Data de hoje
       const today = `${new Date().getDate()}-${new Date().getMonth() + 1}-${new Date().getFullYear()}`
@@ -114,6 +132,7 @@ async function start(client: wppconnect.Whatsapp): Promise<void> {
       
 
       // Para cada IdsToday, que é um array de Ids do dia de hoje, chama a função mensagensPo
+      console.log("Hoje: ", IdsToday)
       IdsToday.forEach(ids => {
         teste += mensagensPo(ids)
 
@@ -154,9 +173,6 @@ function diaSemana(dia: number) {
     const b = await client.getMessages(test)
     const hoje  = `${new Date().getDate()}/${new Date().getMonth() + 1}/${new Date().getFullYear()}`
 
-    // console.log("TEST: ", test)
-
-
 
     b.map(items => {
 
@@ -164,7 +180,6 @@ function diaSemana(dia: number) {
         \n`
       })
 
-    console.log("currentMessageEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE: ", currentMessage) 
     const chatId = ""
 
     const answer = AI_SELECTED === 'GPT'
