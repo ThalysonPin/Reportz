@@ -64,7 +64,8 @@ var teste = ""
 async function start(client: wppconnect.Whatsapp): Promise<void> {
 
   let grupoId = "";
-  
+
+
   client.onMessage((message) => {
     (async () => {
 
@@ -74,6 +75,11 @@ async function start(client: wppconnect.Whatsapp): Promise<void> {
 
 
     } 
+
+    if(message.type === 'chat' && message.chatId !== 'status@broadcast' && message.body === "Relate" && grupoId.length > 1){
+
+    }
+    
 
     // Verifica se a mensagem é de um chat individual (não de grupo) e não é uma mensagem de status e contém "Relate"
     if(message.type === 'chat' && message.chatId !== 'status@broadcast' && message.body === "Relate" && grupoId.length > 1) {
@@ -121,6 +127,26 @@ async function start(client: wppconnect.Whatsapp): Promise<void> {
   })();
 });
 
+function diaSemana(dia: number) {
+  switch (dia) {
+    case 1:
+      return "Segunda"
+    case 2:
+      return "Terça"
+    case 3:
+      return "Quarta"
+    case 4:
+      return "Quinta"
+    case 5:
+      return "Sexta"
+    case 6:
+      return "Sábado"
+    case 7:
+      return "Domingo"
+    default:
+      return 0
+  }
+}
   
   // A função armazena as mensagens de cada Id do IdsToday em b e depois coleta essas mensagens em currentMessage
   async function mensagensPo(test: string){
@@ -134,7 +160,7 @@ async function start(client: wppconnect.Whatsapp): Promise<void> {
 
     b.map(items => {
 
-        currentMessage += items.type === "e2e_notification" ? "" : ` Nome: ${items.sender.pushname ? items.sender.pushname : items.sender.isMe ? "Atendente" : items.sender.verifiedName ? items.sender.verifiedName : "não definido" } / Remetente: ${items.sender.isMe ? "Atendente" : 'Cliente'} / Mensagem: ${items.type === "ptt" ? "Mensagem de audio" : items.type === "sticker" ? "Mensagem de figurinha" : items.type === "image" ? "Mensagem de imagem" : items.type === "video" ?  "Mensagem de video" : items.type === "document" ? "Mensagem de documento" : items.type === "chat" ? items.content : items.type === "vcard" ? "Mensagem de contato do whatsApp" :"Mensagem indefinida"} / Horário: ${new Date(items.timestamp * 1000).getHours()}:${new Date(items.timestamp * 1000).getMinutes()}:${new Date(items.timestamp * 1000).getSeconds() }  / Tipo de mensagem: ${items.type} /  Data da mensagem: ${new Date(items.timestamp * 1000).getDate()}/${new Date(items.timestamp * 1000).getMonth() + 1}/${new Date(items.timestamp * 1000).getFullYear()}} 
+        currentMessage += items.type === "e2e_notification" ? "" : ` Nome: ${items.sender.pushname ? items.sender.pushname : items.sender.isMe ? "Atendente" : items.sender.verifiedName ? items.sender.verifiedName : "não definido" } / Remetente: ${items.sender.isMe ? "Atendente" : 'Cliente'} / Mensagem: ${items.type === "ptt" ? "Mensagem de audio" : items.type === "sticker" ? "Mensagem de figurinha" : items.type === "image" ? "Mensagem de imagem" : items.type === "video" ?  "Mensagem de video" : items.type === "document" ? "Mensagem de documento" : items.type === "chat" ? items.content : items.type === "vcard" ? "Mensagem de contato do whatsApp" :"Mensagem indefinida"} / Horário: ${new Date(items.timestamp * 1000).getHours()}:${new Date(items.timestamp * 1000).getMinutes()}:${new Date(items.timestamp * 1000).getSeconds() }  / Tipo de mensagem: ${items.type} /  Data da mensagem: ${new Date(items.timestamp * 1000).getDate()}/${new Date(items.timestamp * 1000).getMonth() + 1}/${new Date(items.timestamp * 1000).getFullYear()} / Dia da semana: ${diaSemana(new Date(items.t * 1000).getDay()) }
         \n`
       })
 
