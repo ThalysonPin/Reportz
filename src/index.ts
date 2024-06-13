@@ -58,6 +58,7 @@ function timeToDate(timestamp : number) {
 }
 
 var teste = ""
+var tomorrowMsgs = ""
 
 
 // FUNÇÃO ASSÍNCRONA PARA PEGAR AS MENSAGENS E OUTROS DADOS DO WPP
@@ -87,19 +88,19 @@ async function start(client: wppconnect.Whatsapp): Promise<void> {
 
       const maxChats = await client.listChats({count: 30});
 
-      let IdsToday: string[] = [];
+      let IdsTomorrow: string[] = [];
 
       maxChats.forEach(objeto => {
         if(objeto.isGroup === false && timeToDate(objeto.t) === yesterday) {                     
           
-          IdsToday.push(objeto.id.user ) 
+          IdsTomorrow.push(objeto.id.user ) 
            
         }
       });
 
-      console.log("Ontem: ", IdsToday)
-      IdsToday.forEach(ids => {
-        teste += mensagensPo(ids)
+      console.log("Ontem: ", IdsTomorrow)
+      IdsTomorrow.forEach(ids => {
+        tomorrowMsgs += mensagensPo(ids)
 
       })
     }
@@ -173,7 +174,6 @@ function diaSemana(dia: number) {
     const b = await client.getMessages(test)
     const hoje  = `${new Date().getDate()}/${new Date().getMonth() + 1}/${new Date().getFullYear()}`
 
-
     b.map(items => {
 
         currentMessage += items.type === "e2e_notification" ? "" : ` Nome: ${items.sender.pushname ? items.sender.pushname : items.sender.isMe ? "Atendente" : items.sender.verifiedName ? items.sender.verifiedName : "não definido" } / Remetente: ${items.sender.isMe ? "Atendente" : 'Cliente'} / Mensagem: ${items.type === "ptt" ? "Mensagem de audio" : items.type === "sticker" ? "Mensagem de figurinha" : items.type === "image" ? "Mensagem de imagem" : items.type === "video" ?  "Mensagem de video" : items.type === "document" ? "Mensagem de documento" : items.type === "chat" ? items.content : items.type === "vcard" ? "Mensagem de contato do whatsApp" :"Mensagem indefinida"} / Horário: ${new Date(items.timestamp * 1000).getHours()}:${new Date(items.timestamp * 1000).getMinutes()}:${new Date(items.timestamp * 1000).getSeconds() }  / Tipo de mensagem: ${items.type} /  Data da mensagem: ${new Date(items.timestamp * 1000).getDate()}/${new Date(items.timestamp * 1000).getMonth() + 1}/${new Date(items.timestamp * 1000).getFullYear()} / Dia da semana: ${diaSemana(new Date(items.t * 1000).getDay()) }
@@ -192,6 +192,7 @@ function diaSemana(dia: number) {
       messages,
       targetNumber: grupoId,
     });
+
   }
 }
 
